@@ -2,7 +2,7 @@
   "manifest_version": 3,
 
   "name": "Fyzoriel's Twitch UI Refresher",
-  "version": "1.0.1",
+  "version": "2.0.0",
   "description": "Reworking the ugliest ui of all time",
 
   "content_scripts": [{
