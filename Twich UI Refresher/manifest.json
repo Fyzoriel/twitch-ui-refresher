@@ -2,12 +2,12 @@
   "manifest_version": 3,
 
   "name": "Fyzoriel's Twitch UI Refresher",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Reworking the ugliest ui of all time",
 
   "content_scripts": [{
     "js": ["refresher.js"],
     "matches": ["https://www.twitch.tv/*"],
-    "run_at": "document_end"
+    "run_at": "document_start"
   }]
 }
