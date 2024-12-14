@@ -4,10 +4,13 @@ const CHANNEL_ROOT_CLASS = "channel-root__info";
 const CHANNEL_INFO_CLASS = "channel-info-content";
 const CHANNEL_INFO_BUTTON_CLASS = "Layout-sc-1xcs6mc-0 gbBOPT ScTransitionBase-sc-hx4quq-0 gxabAj tw-transition";
 
-const MENU_CLASS_CHAT = "ScTransitionBase-sc-hx4quq-0 dOwqqa channel-root__upper-watch channel-root__upper-watch--with-chat tw-transition";
+const MENU_CLASS_CHAT_CLASS = "ScTransitionBase-sc-hx4quq-0 dOwqqa channel-root__upper-watch channel-root__upper-watch--with-chat tw-transition";
 const MENU_CLASS = "ScTransitionBase-sc-hx4quq-0 dOwqqa channel-root__upper-watch tw-transition";
 const PLAYER_LAYOUT_CLASS = "channel-root__player";
-const PLAYER = "persistent-player" // InjectLayout-sc-1i43xsx-0 persistent-player
+const PLAYER_CLASS = "persistent-player"; // InjectLayout-sc-1i43xsx-0 persistent-player
+
+const STREAMER_NAME_CLASS = "CoreText-sc-1txzju1-0 ScTitleText-sc-d9mj2s-0 AAWwv bzDGwQ InjectLayout-sc-1i43xsx-0 dhkijX tw-title";
+const STREAMER_PICTURE_CLASS = "Layout-sc-1xcs6mc-0 eXdYpk avatar--t0iT1";
 
 const getChannelRoot = () => {
     return document.getElementsByClassName(CHANNEL_ROOT_CLASS)[0];
@@ -26,7 +29,7 @@ const getMenu = () => {
     if (menu) {
         return menu;
     }
-    return document.getElementsByClassName(MENU_CLASS_CHAT)[0];
+    return document.getElementsByClassName(MENU_CLASS_CHAT_CLASS)[0];
 }
 
 const getPlayerLayout = () => {
@@ -34,7 +37,19 @@ const getPlayerLayout = () => {
 }
 
 const getPlayer = () => {
-    return document.getElementsByClassName(PLAYER)[0];
+    return document.getElementsByClassName(PLAYER_CLASS)[0];
+}
+
+const getStreamerName = () => {
+    return document.getElementsByClassName(STREAMER_NAME_CLASS)[0];
+}
+
+const getStreamerPicture = () => {
+    return document.getElementsByClassName(STREAMER_PICTURE_CLASS)[0];
+}
+
+const hasEvent = (element, eventName) => {
+    return element.hasAttribute(`on${eventName}`);
 }
 
 // Use to get sum of margin top and translate Y
@@ -62,9 +77,19 @@ const updateMenu = () => {
     const menu = getMenu();
     const playerLayout = getPlayerLayout();
     const player = getPlayer();
+    const streamerName = getStreamerName();
+    const streamerPicture = getStreamerPicture();
 
     if (!channelRoot || !channelInfo || !menu || !playerLayout) {
         return;
+    }
+
+    if (streamerName && !hasEvent(streamerName, "click")) {
+        streamerName.addEventListener("click", resetMenu);
+    }
+
+    if (streamerPicture && !hasEvent(streamerPicture, "click")) {
+        streamerPicture.addEventListener("click", resetMenu);
     }
 
     const channelRootMarginTopValue = getTopTranslationValue(channelRoot);
@@ -97,8 +122,26 @@ const updateMenu = () => {
 }
 
 const resetMenu = () => {
+    resetting = true;
+
     const playerLayout = getPlayerLayout();
     const channelInfo = getChannelInfo();
+    const streamerName = getStreamerName();
+    const streamerPicture = getStreamerPicture();
+    const menu = getMenu();
+
+    if (menu && menu.style.top !== "0px") {
+        menu.style.removeProperty("top");
+        menu.style.removeProperty("zIndex");
+    }
+
+    if (streamerName && hasEvent(streamerName, "click")) {
+        streamerName.removeEventListener("click", resetMenu);
+    }
+
+    if (streamerPicture && hasEvent(streamerPicture, "click")) {
+        streamerPicture.removeEventListener("click", resetMenu);
+    }
 
     if (playerLayout && playerLayout.style.top === "-7rem") {
         playerLayout.style.removeProperty("top");
@@ -123,14 +166,19 @@ const updateButton = () => {
 const isMenuPage = () => {
     return !!document.querySelector('[data-a-target="stream-title"]');
 }
+let resetting = false;
 
 const observer = new MutationObserver(function (mutations, mutationInstance) {
 
-    if (isMenuPage()) {
+    if (isMenuPage() && !resetting) {
         updateMenu();
         updateButton();
     } else {
         resetMenu();
+    }
+
+    if (!isMenuPage()) {
+        resetting = false;
     }
 });
 
